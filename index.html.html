@@ -1,0 +1,724 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400, shrink-to-fit=no, user-scalable=yes">
+  <title>Nexus: O2 Sales Copilot · Corporate scoring & Anomaly Stats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="nexus.css">
+  <script id="boot-config">window.__BOOT_CONFIG__=null;</script>
+</head>
+<body class="locked">
+  <div class="lock-screen" id="lockScreen" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+    <div class="lock-card">
+      <div class="lock-brand"><strong>Nexus:</strong> O2 Sales <span id="lockBypass" aria-hidden="true" style="cursor:inherit;color:inherit;padding:0 1px;">C</span>opilot</div>
+      <h1 class="lock-title" id="lockTitle">Zadejte heslo</h1>
+      <p class="lock-sub">Po zadání správného hesla se načte celý pracovní cockpit.</p>
+      <div class="lock-form">
+        <input id="lockInput" class="lock-input" type="password" autocomplete="off" spellcheck="false" placeholder="Heslo">
+        <button class="lock-btn" data-action="unlock-app">Odemknout</button>
+      </div>
+      <div class="lock-msg" id="lockMsg"></div>
+    </div>
+  </div>
+  <header>
+    <div class="hl">
+      <div class="hl-brand">
+        <div class="ht"><strong>Nexus:</strong> O2 Sales Copilot</div>
+        <div class="hs">Created by David Gottfried</div>
+      </div>      <div id="headerAvatar" class="header-avatar" data-name=""></div>      <div class="hc">
+        <div class="clock" id="clock"></div>
+        <div class="date" id="date"></div>
+      </div>
+    </div>
+    <div class="hr">
+      <button class="btn iconbtn" data-action="open-feedback" title="Zpětná vazba – pošli svůj nápad přímo do Teams"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
+      <button class="btn iconbtn" data-action="toggle-mic" id="micBtn" title="Hlasové ovládání: Copilot sám odškrtává to, co říkáš | Ctrl+klik = Debug hlasu" style="border-color: #10b981;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+      <button class="btn iconbtn" data-action="toggle-voice-debug" id="voiceDebugBtn" title="Přepis hlasu – zobrazit / skrýt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></button>
+      <button class="btn iconbtn" data-action="toggle-zen" id="zenBtn" title="Zen režim: klik cyklicky přepíná Vypnuto → Zen 1 (skrýt boky) → Zen 2 (rozostřit boky)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="iconbtn-badge" id="zenBadge"></span></button>
+      <button class="btn iconbtn" data-action="toggle-sandbox" id="sandboxBtn" title="Trénink: hovory se neukládají do statistik"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6"/><path d="M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></button>
+      <button class="btn iconbtn" id="eduBtn" data-action="open-edu" title="Průvodce hovorem · Edukační rádce pro konzultanty"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
+      <button class="btn iconbtn" data-action="toggle-fullscreen" id="fullscreenBtn" title="Přepnout celou obrazovku"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="btn iconbtn" data-action="toggle-mobile-view" id="mobileBtn" title="Mobilní zobrazení: zmenší celý PC layout tak, aby se vešel na displej mobilu (ideálně použij spolu s fullscreenem a na šířku)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5" ry="2.5"/><line x1="12" y1="18.2" x2="12.01" y2="18.2"/></svg></button>
+      <button class="btn statbtn" data-action="open-stats"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Statistiky</button>
+      <button class="btn" data-action="open-admin" id="adminBtn" title="Administrace (heslem chráněno)" style="background:#123e78 !important;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</button>
+      <button class="btn redbtn" data-action="reset-call"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"/></svg>Zahodit hovor</button>
+    </div>
+  </header>
+  <button class="sos-fab" data-action="open-sos" title="SOS – zavolej pomoc Team Leaderovi">SOS</button>
+  <main class="app">
+    <aside>
+      <div id="roadmapHost" class="road"></div>
+    </aside>
+    <section>
+      <div class="ai-live-border" style="flex:1;min-height:0;height:100%;border-radius:23px;display:flex;flex-direction:column;">
+        <div class="ai-live-border-inner" style="flex:1;min-height:0;padding:0;border-radius:21px;background:transparent;display:flex;flex-direction:column;overflow:hidden;">
+          <div id="cardHost" class="card"></div>
+        </div>
+      </div>
+    </section>
+    <aside>
+      <div class="panel">
+        <div class="prod-tabs" id="productButtons"></div>
+        <div class="product-body">
+          <div id="productCard" class="prod-card"></div>
+        </div>
+      </div>
+    </aside>
+    <aside>
+      <div class="panel notes-panel">
+        <div class="phead">
+          <span>Poznámky</span>
+        </div>
+        <div class="pbody">
+          <div id="notesScoreHost"></div>
+          <div class="selected-notes" id="selectedNotes"></div>
+          <textarea id="callNotes" class="notes" placeholder="Ruční doplnění poznámek k hovoru. Nahoře se doporučení generují automaticky."></textarea>
+        </div>
+      </div>
+    </aside>
+  </main>
+  
+  <div class="premium-save" id="premiumSave">
+    <div class="save-card">
+      <div class="save-icon">✓</div>
+      <h2 id="premiumSaveTitle">Hovor uložen</h2>
+      <p id="premiumSaveSub">Obchodní stopa byla zapsána a cockpit je připraven na další hovor.</p>
+    </div>
+  </div>
+  
+  <div class="admin-full" id="adminModal" aria-hidden="true">
+    <div class="admin-topbar">
+      <div class="admin-brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m0-14a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+        <div>
+          <h2>Administrace &amp; Copilot Studio</h2>
+          <div class="admin-sub">Voice Locks · Teams Broadcast · Live Card Editor</div>
+        </div>
+        <span class="admin-save-indicator" id="adminSaveIndicator"><span class="dot"></span> Uloženo</span>
+      </div>
+      <div class="admin-actions" id="adminTopActions">
+        <button class="admin-topbtn" data-action="admin-export" title="Stáhne aktuální konfiguraci karet + Teams jako JSON">📤 Export</button>
+        <button class="admin-topbtn" data-action="admin-import" title="Načte konfiguraci ze souboru JSON — sdílené s kolegy">📥 Import</button>
+        <button class="admin-topbtn" data-action="admin-share-link" title="Vytvoří odkaz s vloženou konfigurací pro celý tým">🔗 Odkaz pro tým</button>
+        <button class="admin-topbtn danger" data-action="admin-reset-defaults" title="Vrátí karty a produkty na tovární hodnoty">↺ Tovární karty</button>
+        <button class="admin-topbtn ok" data-action="close-admin" title="Zavřít administraci">✕ Zavřít</button>
+      </div>
+    </div>
+
+    <!-- LOCK / PASSWORD (zobrazí se dokud není odemčeno) -->
+    <div id="adminAuth" style="max-width:460px;margin:60px auto;background:#fff;border:1px solid #bfdbfe;border-radius:20px;padding:24px;box-shadow:0 20px 60px rgba(0,35,90,.12);">
+      <div style="font-size:18px;font-weight:950;color:var(--o2d);margin-bottom:8px;">🔐 Přístup do administrace</div>
+      <p style="font-size:12px;color:var(--mut);font-weight:800;margin-bottom:14px;line-height:1.5;">Administrace je chráněna heslem. Zadej heslo pro přístup k nastavení hlasového zámku, Teams notifikací a live editoru karet.</p>
+      <label class="admin-label">Heslo</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input id="adminPasswordInput" class="admin-input" type="password" autocomplete="off" spellcheck="false" placeholder="Zadej heslo" style="flex:1;" />
+        <button class="admin-btn primary" data-action="unlock-admin" style="padding:0 18px;">Odemknout</button>
+      </div>
+      <div id="adminAuthMsg" style="min-height:18px;font-size:12px;font-weight:850;color:#dc2626;"></div>
+    </div>
+
+    <!-- WORKSPACE (zobrazí se po odemčení) -->
+    <div class="admin-workspace" id="adminSettings" style="display:none;">
+
+      <!-- LEVÝ SLOUPEC: Voice locks -->
+      <div class="admin-col">
+        <div class="admin-col-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0050ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div>
+            <h3>Uzamčení klikání myší</h3>
+            <div class="admin-col-sub">Zaškrtnuté kategorie půjdou označit jen hlasem</div>
+          </div>
+        </div>
+        <div class="admin-col-body">
+          <div class="admin-section">
+            <h4>🎙️ Vynucení hlasového ovládání</h4>
+            <p class="hint">Uzamčené kategorie <b>nepůjde odklikat myší</b> — položky se budou zaškrtávat <b>pouze hlasovým příkazem</b>. Trénink: donutí konzultanta reálně mluvit se zákazníkem.</p>
+            <div class="slack-toggle-row">
+              <span class="slack-toggle-label">Profilační otázky</span>
+              <label class="slack-toggle"><input type="checkbox" id="adminLockQuestions"><span class="slack-slider"></span></label>
+            </div>
+            <div class="slack-toggle-row">
+              <span class="slack-toggle-label">Výhody</span>
+              <label class="slack-toggle"><input type="checkbox" id="adminLockBenefits"><span class="slack-slider"></span></label>
+            </div>
+            <div class="slack-toggle-row">
+              <span class="slack-toggle-label">Užitky / zkušební uzavření</span>
+              <label class="slack-toggle"><input type="checkbox" id="adminLockUtilities"><span class="slack-slider"></span></label>
+            </div>
+            <div class="slack-toggle-row" style="border-bottom:none;">
+              <span class="slack-toggle-label">Dotažení / další krok</span>
+              <label class="slack-toggle"><input type="checkbox" id="adminLockClosing"><span class="slack-slider"></span></label>
+            </div>
+          </div>
+          <div class="admin-section" style="background:#fff7ed;border-color:#fed7aa;">
+            <h4 style="color:#c2410c;">💡 Doporučení</h4>
+            <p class="hint" style="margin:0;">Pro nejlepší trénink zamkni <b>Otázky + Výhody + Užitky</b> a nech <b>Dotažení</b> odemčené (rychlejší dokončení hovoru).</p>
+          </div>
+        </div>
+        <div class="admin-col-foot">
+          <div id="adminLocksStatus" style="font-size:11px;font-weight:850;flex:1;"></div>
+          <button class="admin-btn primary" data-action="save-admin-locks">💾 Uložit zámky</button>
+        </div>
+      </div>
+
+      <!-- STŘEDNÍ SLOUPEC: Teams targets & composer -->
+      <div class="admin-col">
+        <div class="admin-col-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0050ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div>
+            <h3>Teams notifikace &amp; broadcast</h3>
+            <div class="admin-col-sub">Více cílů (kanály / skupiny) + přímé odeslání zprávy</div>
+          </div>
+        </div>
+        <div class="admin-col-body" id="adminTeamsBody">
+          <!-- Vyplní renderAdminTargets() -->
+        </div>
+        <div class="admin-col-foot">
+          <div id="teamsStatus" style="font-size:11px;font-weight:850;flex:1;"></div>
+          <button class="admin-btn" data-action="teams-add-target">➕ Přidat cíl</button>
+          <button class="admin-btn primary" data-action="save-teams-settings">💾 Uložit</button>
+        </div>
+      </div>
+
+      <!-- PRAVÝ SLOUPEC: Live editor -->
+      <div class="admin-col">
+        <div class="admin-col-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0050ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <div>
+            <h3>Editor karet, produktů &amp; copilotu</h3>
+            <div class="admin-col-sub">Změny se okamžitě promítnou do kokpitu · 1:1 s reálnými kartami</div>
+          </div>
+        </div>
+        <div class="admin-tabs" id="adminEditorTabs">
+          <button class="admin-tab" data-action="admin-editor-tab" data-val="cards">📋 Karty (1–8)</button>
+          <button class="admin-tab" data-action="admin-editor-tab" data-val="products">📦 Produkty &amp; copilot</button>
+          <button class="admin-tab" data-action="admin-editor-tab" data-val="needs">💡 Potřeby &amp; SOS</button>
+          <button class="admin-tab" data-action="admin-editor-tab" data-val="objections">🛡️ Námitky</button>
+        </div>
+        <div class="admin-col-body" id="adminEditorBody">
+          <!-- Vyplní renderAdminEditor() -->
+        </div>
+        <div class="admin-col-foot">
+          <div id="adminEditorStatus" style="font-size:11px;font-weight:850;flex:1;color:var(--mut);">Auto-save po každé změně · sdílené přes Export / Odkaz</div>
+          <button class="admin-btn ok" data-action="admin-preview-refresh">🔄 Refresh preview</button>
+        </div>
+      </div>
+
+    </div>
+
+    <input type="file" id="adminImportFile" accept=".json,application/json" style="display:none;">
+  </div>
+
+  <div class="tahak-modal" id="tahakModal" data-action="close-tahak">
+    <div class="tahak-card">
+      <button class="tahak-close" data-action="close-tahak" title="Zavřít tahák">✕</button>
+      <div class="tahak-title" id="tahakTitle">💡 Tahák</div>
+      <div class="tahak-list" id="tahakList"></div>
+    </div>
+  </div>
+  
+  <div class="voice-panel" id="voicePanel">
+    <span class="pulsing-dot"></span>
+    <span class="voice-text" id="voiceText">Naslouchám...</span>
+    <span class="voice-level" id="voiceLevel" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i>
+    </span>
+  </div>
+
+  <div class="voice-debug" id="voiceDebugPanel">
+    <div class="voice-debug-head">
+      <span>Voice Debug</span>
+      <span id="voiceDebugModeLabel">Balanced</span>
+    </div>
+    <div class="voice-debug-row"><b>Interim</b><div id="voiceDebugInterim">-</div></div>
+    <div class="voice-debug-row"><b>Final</b><div id="voiceDebugFinal">-</div></div>
+    <div class="voice-debug-row"><b>Zachycené položky</b><div id="voiceDebugMatches" class="voice-debug-matches"></div></div>
+    <div class="voice-debug-row"><b>Historie transkriptu</b><div id="voiceDebugHistory" class="voice-history"></div></div>
+    <div class="voice-debug-row"><b>Status</b><div id="voiceDebugStatus">Vypnuto</div></div>
+  </div>
+  
+  <div class="toast" id="toast">Uloženo</div>
+  <div class="overlay" id="shade" data-action="close-drawer"></div>
+  
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div>
+        <div class="drawer-title" id="drawerTitle">Statistiky</div>
+        <div class="drawer-sub" id="drawerSub">Přehled vzorců a doporučení kouče</div>
+      </div>
+      <div class="drawer-actions">
+        <button class="drawer-btn" id="printBtn" data-action="printscreen-stats" style="background: #0050ff;">📸 Zkopírovat do schránky (Printscreen)</button>
+        <button class="drawer-btn drawer-close" data-action="close-drawer">Zavřít</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+i  <script src="nexus.js"></script>
+
+
+
+  <!-- ═══════════════════════  SOS MODAL  ══════════════════════════════════ -->
+  <div class="nexus-overlay" id="sosOverlay" role="dialog" aria-modal="true" aria-labelledby="sosTitle">
+    <div class="nexus-dialog">
+      <div class="nexus-dialog-head">
+        <h3 id="sosTitle">🆘 SOS – Potřebuji pomoc</h3>
+        <p>Odešle okamžité upozornění Team Leaderovi přes Teams</p>
+      </div>
+      <div class="nexus-dialog-body">
+        <div class="nexus-step-badge" id="sosStepBadge">Aktuální krok: —</div>
+        <span class="nexus-field-label">S čím potřebuješ pomoci? (volitelné)</span>
+        <textarea class="nexus-textarea" id="sosCommentInput" placeholder="Popiš stručně, s čím se zákazník zasekl nebo co potřebuješ…"></textarea>
+      </div>
+      <div class="nexus-dialog-foot">
+        <button class="nexus-btn ghost" data-action="close-sos">Zrušit</button>
+        <button class="nexus-btn red" data-action="send-sos">🆘 Odeslat SOS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════  FEEDBACK MODAL  ════════════════════════════ -->
+  <div class="nexus-overlay" id="feedbackOverlay" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+    <div class="nexus-dialog">
+      <div class="nexus-dialog-head blue">
+        <h3 id="feedbackTitle">✉️ Zpětná vazba</h3>
+        <p>Tvůj nápad nebo připomínka půjde přímo do Teams</p>
+      </div>
+      <div class="nexus-dialog-body">
+        <span class="nexus-field-label">Tvůj nápad nebo připomínka</span>
+        <textarea class="nexus-textarea" id="feedbackTextInput" placeholder="Napiš svůj nápad, připomínku nebo zpětnou vazbu…" style="min-height:100px;"></textarea>
+      </div>
+      <div class="nexus-dialog-foot">
+        <button class="nexus-btn ghost" data-action="close-feedback">Zrušit</button>
+        <button class="nexus-btn blue" data-action="send-feedback">✉️ Odeslat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════  EDUKAČNÍ OVERLAY  ══════════════════════════ -->
+  <div id="eduModal" class="edu-modal" role="dialog" aria-modal="true">
+    <div class="edu-inner">
+
+      <aside class="edu-sidebar">
+        <div class="edu-brand">
+          <div class="edu-brand-tag">O2 · Nexus Sales Copilot</div>
+          <div class="edu-brand-title">Průvodce hovorem</div>
+          <div class="edu-brand-sub">8 kapitol · rádce konzultanta</div>
+        </div>
+        <nav class="edu-nav" id="eduNav">
+          <button class="edu-nav-item active" onclick="goEduChap(1)"><span class="edu-nav-num">1</span><span><div class="edu-nav-kap">Kapitola 1</div>První dojem & otevření</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(2)"><span class="edu-nav-num">2</span><span><div class="edu-nav-kap">Kapitola 2</div>Naslouchání & potřeby</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(3)"><span class="edu-nav-num">3</span><span><div class="edu-nav-kap">Kapitola 3</div>Nabízení bez vnucování</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(4)"><span class="edu-nav-num">4</span><span><div class="edu-nav-kap">Kapitola 4</div>Práce s námitkami</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(5)"><span class="edu-nav-num">5</span><span><div class="edu-nav-kap">Kapitola 5</div>Emoce & naštvaný zákazník</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(6)"><span class="edu-nav-num">6</span><span><div class="edu-nav-kap">Kapitola 6</div>Jak uzavřít hovor</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(7)"><span class="edu-nav-num">7</span><span><div class="edu-nav-kap">Kapitola 7</div>Reklamace & náročné situace</span></button>
+          <button class="edu-nav-item" onclick="goEduChap(8)"><span class="edu-nav-num">8</span><span><div class="edu-nav-kap">Kapitola 8</div>Péče o sebe</span></button>
+        </nav>
+        <div class="edu-sidebar-foot">
+          <button class="edu-x-btn" onclick="closeEduModal()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Zavřít (Esc)
+          </button>
+        </div>
+      </aside>
+
+      <div class="edu-main">
+        <div class="edu-topbar">
+          <div>
+            <div class="edu-chap-label" id="eduTopLabel">Kapitola 1 z 8</div>
+            <div class="edu-chap-title" id="eduTopTitle">První dojem a otevření hovoru</div>
+          </div>
+          <div class="edu-dots" id="eduDots"></div>
+        </div>
+
+        <div class="edu-body" id="eduBody">
+
+          <!-- K1 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap active" id="eduC1">
+            <p class="edu-lead">Představ si, že jdeš poprvé na pohovor a člověk, který tě přijímá, na tebe hned od dveří mluví unaveně, rychle a nedívá se ti do očí. Co si o něm pomyslíš? Přesně takhle to funguje i po telefonu — zákazník tě sice nevidí, ale slyší úplně všechno. A během <strong>první nebo dvou vteřin</strong> si o tobě udělá dojem, kterého se pak celý hovor drží.</p>
+
+            <div class="edu-call edu-call-amber">
+              <span class="edu-call-icon">⚠️</span>
+              <p>Pokud první dojem bude špatný, bude si i v případě, že mu nabídneš skvělou věc, myslet, že ho chceš jen o něco připravit. Naopak, pokud bude dobrý, bude ti mnohem víc věřit — i ve chvíli, kdy mu sdělíš něco nepříjemného.</p>
+            </div>
+
+            <h3>Co přesně tvoří první dojem</h3>
+            <div class="edu-steps">
+              <div class="edu-step"><div class="edu-sn">1</div><div class="edu-sc">
+                <h4>Tempo řeči</h4>
+                <p>Rychlá řeč zákazníkovi podvědomě signalizuje spěch nebo nervozitu. I když jsi v klidu, rychlé tempo působí, že chceš mít hovor rychle za sebou — a to zákazníkovi vadí. Mluv o trochu pomaleji, než je tvoje přirozené tempo. Bude to znít klidněji a jistěji.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">2</div><div class="edu-sc">
+                <h4>Tón hlasu — úsměv je slyšet</h4>
+                <p>Zkus to sám na sobě — řekni stejnou větu jednou s vážnou tváří a podruhé s úsměvem. Uslyšíš rozdíl. Pokud se usmíváš, i když tě zákazník nevidí, tvůj hlas zní vřeleji a přátelštěji.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">3</div><div class="edu-sc">
+                <h4>Jasnost představení</h4>
+                <p>Zákazník musí hned vědět, s kým mluví a proč. Pokud se představíš zamlženě nebo příliš rychle, zákazník stráví první půlminutu tím, že se snaží pochopit, co se vlastně děje, místo aby poslouchal, co mu říkáš.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">4</div><div class="edu-sc">
+                <h4>Zájem — neptej se mechanicky</h4>
+                <p>Pokud se zeptáš „jak se máte" jenom mechanicky a hned skáčeš na další větu bez čekání na odpověď, zákazník to pozná. Působí to falešně. Buď se ptej opravdu, nebo tuto otázku raději vynech a přejdi rovnou k věci.</p>
+              </div></div>
+            </div>
+
+            <h3>Příklad přivítání</h3>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Špatně</div><p>"Dobrýden, tady Novák, O2, volám ohledně vaší smlouvy, máte chvilku?" <em>(odříkáno jedním dechem, rychle, bez přestávky)</em></p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Dobře</div><p>"Dobrý den. <em>[krátká pauza]</em> Jmenuji se Petr Novák a volám vám z O2. <em>[pauza]</em> Volám, protože…"</p></div>
+            </div>
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">💡</span>
+              <p>Ve druhé verzi jsou <strong>pauzy</strong>, věty jsou kratší a zákazníkovi dáváš prostor. Působí to klidněji a profesionálněji — přitom jde v podstatě o stejná slova.</p>
+            </div>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Mluv pomaleji, než je tvoje přirozené tempo.</li>
+              <li>Usmívej se, i když tě nikdo nevidí — je to slyšet.</li>
+              <li>Představ se jasně a krátkými větami s pauzami.</li>
+              <li>Neptej se mechanicky na věci, na které nechceš slyšet odpověď.</li>
+            </ul></div>
+          </div>
+
+          <!-- K2 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC2">
+            <p class="edu-lead">Mnoho lidí si myslí, že dobrý prodejce je ten, kdo umí hodně a přesvědčivě mluvit. <strong>Je to přesně naopak.</strong> Nejlepší prodejci na světě mluví během hovoru méně než ti špatní — většinu času věnují tomu, že se ptají a poslouchají.</p>
+
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">💡</span>
+              <p>Pokud nevíš, co zákazník skutečně potřebuje, nabídneš mu cokoliv a bude to jen náhoda, jestli to bude to pravé. Ale pokud se nejdřív zeptáš a pozorně vyslechneš odpověď, budeš přesně vědět, co mu nabídnout — a on to přijme mnohem ochotněji, protože pozná, že mu opravdu nasloucháš.</p>
+            </div>
+
+            <h3>4 druhy otázek, které tě dovedou k prodeji</h3>
+            <div class="edu-steps">
+              <div class="edu-step"><div class="edu-sn">1</div><div class="edu-sc">
+                <h4>Otázka na současnou situaci</h4>
+                <p>Nejdřív zjisti fakta. Co zákazník teď má, jak to používá.<br>
+                <em>"Jaký tarif teď máte?" · "Kolik dat obvykle za měsíc spotřebujete?" · "Používáte telefon hlavně na volání, nebo spíš na internet?"</em></p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">2</div><div class="edu-sc">
+                <h4>Otázka na problém</h4>
+                <p>Teď se ptej, co zákazníkovi vadí nebo co mu nefunguje tak, jak by chtěl.<br>
+                <em>"Stává se vám, že vám dojdou data ještě před koncem měsíce?" · "Máte pocit, že platíte za něco, co vlastně nevyužíváte?" · "Bylo něco, co vás na dosavadní službě štvalo?"</em></p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">3</div><div class="edu-sc">
+                <h4>Otázka na dopad — nejsilnější krok</h4>
+                <p>Toto je nejdůležitější krok a hodně konzultantů ho přeskakuje. Cílem je, aby si zákazník <strong>sám uvědomil</strong>, jak moc ho ten problém vlastně trápí — pak bude mnohem ochotnější přijmout řešení.<br>
+                <em>"A co se pak stane, když vám dojdou data zrovna ve chvíli, kdy potřebujete být online?" · "Jak to řešíte, když se vám to stane třeba na cestách?"</em></p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">4</div><div class="edu-sc">
+                <h4>Otázka vedoucí k řešení</h4>
+                <p>Nakonec se zeptej tak, aby zákazník sám vyslovil, že by mu pomohla změna.<br>
+                <em>"Bylo by pro vás užitečné, kdyby se vám to už nestávalo?" · "Chtěl byste mít jistotu, že vám data nedojdou?"</em></p>
+              </div></div>
+            </div>
+
+            <div class="edu-call edu-call-violet">
+              <span class="edu-call-icon">🎯</span>
+              <p>Když zákazníkovi něco nabídneš rovnou bez těchto otázek, bude přemýšlet: <strong>"Co po mně chce, co mi chce prodat."</strong> Ale když ho tímto postupem provedeš, on sám dojde k závěru, že řešení potřebuje. A věc, na kterou člověk přijde sám, přijímá mnohem raději.</p>
+            </div>
+
+            <h3>Parafrázování — jak ukázat, že opravdu posloucháš</h3>
+            <p>Před reakcí vlastními slovy zopakuj, co zákazník řekl. Zákazník má pocit, že byl vyslechnut a že to, co říká, je pro tebe důležité — to samo o sobě zlepší jeho náladu a ochotu poslouchat.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Bez parafrázování</div><p>Zákazník: "Mě prostě štve, že pořád platím stejně a přitom mi to nefunguje."<br>Ty: "Tak mám pro vás nabídku…"</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ S parafrázováním</div><p>Zákazník: "Mě prostě štve, že pořád platím stejně a přitom mi to nefunguje."<br>Ty: "Pokud tomu dobře rozumím, vadí vám hlavně to, že platíte pořád stejnou částku, ale služba tomu neodpovídá. Je to tak?"</p></div>
+            </div>
+
+            <div class="edu-call edu-call-amber">
+              <span class="edu-call-icon">⚠️</span>
+              <p>Pokud zákazníkovi skáčeš do řeči nebo mu hned nabídneš něco, co s tím, co říkal, vůbec nesouvisí, zákazník má pocit, že ho neposloucháš a že ti jde jen o prodej. <strong>Tím ztrácíš důvěru hned na začátku.</strong></p>
+            </div>
+
+            <p><strong>Cvičení:</strong> Při příštích pěti hovorech se soustřeď jen na jednu věc — kolikrát jsi zákazníkovi skočil do řeči. Nemusíš nic měnit, jen si to všímej. Samotné toto vědomí tě přiměje víc poslouchat.</p>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Ptej se víc, než mluvíš.</li>
+              <li>Postupuj: situace → problém → dopad → otázka vedoucí k řešení.</li>
+              <li>Než začneš reagovat, zopakuj vlastními slovy, co zákazník řekl.</li>
+              <li>Neskákej do řeči.</li>
+            </ul></div>
+          </div>
+
+          <!-- K3 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC3">
+            <p class="edu-lead">Toto je jedna z nejdůležitějších věcí v celém prodeji. Když zákazníkovi řekneš, že tarif má 20 gigabajtů dat, je mu to celkem jedno — nejsou to jeho čísla. Ale když mu řekneš, <strong>co to pro něj konkrétně znamená</strong>, hned to dává smysl.</p>
+
+            <h3>Vlastnost vs. přínos pro zákazníka</h3>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Vlastnost (špatně)</div><p>"Tento tarif má 20 gigabajtů dat."<br><br>"Balíček obsahuje neomezené volání."</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Přínos (dobře)</div><p>"S tímto tarifem se vám nestane, že by vám o víkendu na chalupě došel internet."<br><br>"Můžete si volat s rodinou tak dlouho, jak potřebujete, aniž byste se museli dívat na hodiny nebo na účet."</p></div>
+            </div>
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">💡</span>
+              <p>Ve správné verzi mluvíš <strong>o zákazníkovi, o jeho životě</strong> — ne o technických číslech.</p>
+            </div>
+
+            <h3>Jak najít, co má smysl nabídnout</h3>
+            <p>Pokud jsi v předchozím kroku pozorně naslouchal a zjistil, co zákazníkovi vadí nebo co potřebuje, teď přichází chvíle, kdy to spojíš s konkrétní nabídkou. Nabídka pak nepůsobí jako prodej, ale jako <strong>rada od člověka, který tě poslouchal</strong>.</p>
+            <div class="edu-quote">Zákazník řekl, že mu často docházejí data koncem měsíce a že ho to štve, protože si pak nemůže pustit navigaci na cestách.<br><br>Ty: <strong>"Rozumím, že je to nepříjemné, zvlášť když jedete někam, kde navigaci potřebujete. Mám pro vás řešení — tarif s dvojnásobkem dat by vás vyšel jenom o pár desítek korun víc měsíčně a už by se vám to nestávalo."</strong></div>
+
+            <h3>Práce s cenou</h3>
+            <p>Když zákazník řekne, že je to drahé, největší chyba je hned nabídnout slevu. Tím mu nevědomky potvrdíš, že měl pravdu a že cena opravdu byla nastavena špatně.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Špatně</div><p>Zákazník: "To je docela drahé."<br>Ty: "Dobře, můžu vám dát slevu 50 korun."</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Dobře</div><p>Zákazník: "To je docela drahé."<br>Ty: "Rozumím, že cena je pro vás důležitá. S čím to srovnáváte — máte na mysli konkrétní nabídku od někoho jiného?"</p></div>
+            </div>
+            <p>Tímto způsobem zjistíš, jestli je zákazníkova obava oprávněná, nebo jestli jen porovnává jablka s hruškami. Teprve pak vysvětluješ hodnotu, <strong>ne cenu</strong>.</p>
+
+            <h3>Doplňkový prodej</h3>
+            <p>Pokud zákazník má skutečnou potřebu, kterou jsi zjistil, doplňková nabídka najednou nepůsobí jako otravný prodej, ale jako užitečná rada. Pokud zákazník o cestování zmínil — nabídni cestovní balíček. <strong>Zákazník ti za něj bude vděčný.</strong> Naopak, nabídneš-li ho tomu, kdo o tom vůbec nemluvil — bude ho to obtěžovat.</p>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Nemluv o vlastnostech — mluv o tom, co to zákazníkovi přinese v jeho životě.</li>
+              <li>Nabídku vždy spoj s tím, co jsi zjistil, že zákazník potřebuje.</li>
+              <li>Na námitku o ceně nereaguj hned slevou — nejdřív ji uznej a zjisti víc.</li>
+              <li>Doplňkovou nabídku dělej jen tehdy, když opravdu souvisí s tím, co zákazník řekl.</li>
+            </ul></div>
+          </div>
+
+          <!-- K4 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC4">
+            <p class="edu-lead">Hodně konzultantů se námitek bojí a bere je jako útok. Ve skutečnosti je to přesně naopak — když zákazník vznese námitku, znamená to, že <strong>o nabídce přemýšlí a že mu na tom záleží</strong>. Kdyby ho to vůbec nezajímalo, řekl by prostě "ne, díky". Námitka je příležitost, ne problém.</p>
+
+            <h3>Čtyřkrokový postup na jakoukoli námitku</h3>
+            <div class="edu-steps">
+              <div class="edu-step"><div class="edu-sn">1</div><div class="edu-sc">
+                <h4>Uznat</h4>
+                <p>Nikdy se s zákazníkem nehádej. I kdyby jeho námitka nebyla úplně přesná, on ji tak cítí — a pokud mu hned řekneš, že se mýlí, přestane tě poslouchat.<br><em>"Rozumím, že vám to přijde jako hodně peněz."</em></p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">2</div><div class="edu-sc">
+                <h4>Prozkoumat</h4>
+                <p>Zeptej se, co přesně za tou námitkou stojí. Skutečný důvod bývá jiný, než co zákazník řekl jako první.<br><em>"Můžu se zeptat, co přesně vás na tom nejvíc trápí?"</em></p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">3</div><div class="edu-sc">
+                <h4>Reagovat</h4>
+                <p>Teprve teď, když víš, o co skutečně jde, nabídni fakta nebo řešení.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">4</div><div class="edu-sc">
+                <h4>Potvrdit</h4>
+                <p>Ověř, že zákazník je s tvou odpovědí opravdu spokojený, ne že pouze ztichl.<br><em>"Dává vám to teď smysl? Máte k tomu ještě nějaké otázky?"</em></p>
+              </div></div>
+            </div>
+
+            <h3>Nejčastější námitky a jak na ně reagovat</h3>
+            <div class="edu-call edu-call-amber">
+              <span class="edu-call-icon">💰</span>
+              <p><strong>"Je to drahé"</strong> — toto je nejčastější námitka a málokdy znamená přesně to, co bylo řečeno. Za tím bývá: zákazník nevidí hodnotu · srovnává s konkurencí · má omezený rozpočet. Nejdřív zjisti, o který případ jde: <em>"S čím to srovnáváte?"</em> Pokud srovnává s konkurencí, zjisti konkrétně co ta nabídka obsahuje — často se ukáže, že jde o méně dat, horší pokrytí nebo žádnou podporu.</p>
+            </div>
+            <div class="edu-call edu-call-violet">
+              <span class="edu-call-icon">🤔</span>
+              <p><strong>"Musím si to rozmyslet"</strong> — tato věta skoro nikdy neznamená skutečné rozmýšlení. Většinou skrývá nevyslovenou obavu. Zeptej se přímo: <em>"Chápu. Můžu se zeptat, co je pro vás při rozhodování nejdůležitější, abych vám mohl líp poradit?"</em> Tato otázka odhalí skutečný důvod.</p>
+            </div>
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">🏷️</span>
+              <p><strong>"U konkurence to mají levněji"</strong> — nikdy nezačínej pomlouvat konkurenci. Místo toho se ptej na fakta: <em>"Můžu se zeptat, co přesně tam za tu cenu dostanou? Kolik dat, jaké je pokrytí?"</em> Nech zákazníka samotného dojít k závěru, že jde o jinou věc.</p>
+            </div>
+
+            <div class="edu-call edu-call-green">
+              <span class="edu-call-icon">🔄</span>
+              <p>Pokud zákazník po tvé odpovědi pořád váhá, je to signál, že jsi možná neodhalil skutečný důvod. Vrať se ke kroku 2: <strong>"Mám pocit, že vás pořád ještě něco trápí. Můžete mi říct co?"</strong></p>
+            </div>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Námitka není útok — je to známka zájmu.</li>
+              <li>Postup: uznat → prozkoumat → reagovat → potvrdit.</li>
+              <li>Na "je to drahé" nereaguj slevou — zjisti nejdřív, s čím zákazník srovnává.</li>
+              <li>Na "musím si to rozmyslet" se zeptej přímo, co je pro něj důležité.</li>
+              <li>Nikdy nepomlouvej konkurenci — místo toho se ptej na fakta.</li>
+            </ul></div>
+          </div>
+
+          <!-- K5 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC5">
+            <p class="edu-lead">Zkušenosti ukazují, že když je člověk rozčílený, <strong>vůbec neposlouchá fakta a čísla</strong>, dokud se necítí vyslechnutý a uklidněný. Pokud se mu snažíš hned vysvětlovat nebo předkládat pravidla, jenom přileješ olej do ohně.</p>
+
+            <div class="edu-call edu-call-amber">
+              <span class="edu-call-icon">🔑</span>
+              <p><strong>Zlaté pravidlo:</strong> Nejdřív musíš zvládnout emoci, teprve pak může přijít věcné řešení.</p>
+            </div>
+
+            <h3>Co dělat, když je zákazník naštvaný</h3>
+            <div class="edu-steps">
+              <div class="edu-step"><div class="edu-sn">1</div><div class="edu-sc">
+                <h4>Nech ho domluvit</h4>
+                <p>I když víš, kam tím míří, a i když bys mu chtěl skočit do řeči — nedělej to. Člověk, kterému skočíš do řeči, se rozčílí ještě víc, protože má pocit, že ho neposloucháš.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">2</div><div class="edu-sc">
+                <h4>Reaguj nejdřív na pocit, teprve pak na fakta</h4>
+                <p>Než začneš cokoliv vysvětlovat, ukaž, že rozumíš tomu, jak se cítí.<br><em>"Rozumím, že vás to štve, a je to naprosto pochopitelné."</em> — tato jedna věta dokáže hodně. Zákazník má pocit, že jsi na jeho straně.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">3</div><div class="edu-sc">
+                <h4>Nikdy neříkej "uklidněte se"</h4>
+                <p>Tahle věta funguje přesně opačně — zákazník se rozčílí ještě víc, protože má pocit, že jeho emoce není brána vážně.</p>
+              </div></div>
+              <div class="edu-step"><div class="edu-sn">4</div><div class="edu-sc">
+                <h4>Mluv klidně a pomaleji, než mluví zákazník</h4>
+                <p>Tón se přenáší. Pokud budeš mluvit v klidu, i zákazník se postupně zklidní. Pokud naopak začneš mluvit nervózně nebo rychle, jeho rozčilení se zvýší.</p>
+              </div></div>
+            </div>
+
+            <h3>Příklad celého postupu</h3>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Špatně</div><p>Zákazník: "Tohle je už podruhé, co mi přišla špatná faktura, to je hrozné!"<br>Ty: "To se omlouváme, ale podle systému je vše v pořádku, faktura odpovídá vašemu tarifu."</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Dobře</div><p>Zákazník: "Tohle je už podruhé, co mi přišla špatná faktura, to je hrozné!"<br>Ty: "Rozumím, že vás to štve, obzvlášť když se to stalo podruhé. Pojďme se na to spolu podívat, ať zjistíme, co přesně se stalo."</p></div>
+            </div>
+
+            <h3>Kdy neprodávat</h3>
+            <div class="edu-call edu-call-amber">
+              <span class="edu-call-icon">🚫</span>
+              <p>Pokud je zákazník rozčílený kvůli špatné faktuře nebo výpadku služby, <strong>není vhodná chvíle nabízet mu vyšší tarif</strong>. Napřed musíš vyřešit to, kvůli čemu volá. Teprve pokud je spokojený s vyřešením problému, můžeš nabídnout něco navíc. Pokud toto pravidlo porušíš, zákazník bude mít pocit, že ti jde jen o prodej — to poškodí důvěru natolik, že příště ti nebude věřit.</p>
+            </div>
+
+            <h3>Signály, že se zákazník uklidnil</h3>
+            <p>Mluví pomaleji · přestává zvyšovat hlas · začíná se ptát na řešení, ne jenom stěžovat. <strong>Teprve v tuto chvíli má smysl přejít k praktickým krokům.</strong></p>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Nejdřív reaguj na emoci, teprve pak na fakta.</li>
+              <li>Nech zákazníka domluvit, neskákej mu do řeči.</li>
+              <li>Nikdy neříkej "uklidněte se".</li>
+              <li>Mluv klidně a pomaleji, než mluví rozčílený zákazník.</li>
+              <li>Nenabízej nic navíc, dokud není vyřešen hlavní problém, kvůli kterému zákazník volal.</li>
+            </ul></div>
+          </div>
+
+          <!-- K6 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC6">
+            <p class="edu-lead">Existuje jednoduché pravidlo: lidé si pamatují hlavně dvě věci — nejsilnější okamžik a to, <strong>jak to celé skončilo</strong>. I když byl celý hovor skvělý, pokud skončí zmateně nebo uspěchaně, zákazníkovi v hlavě zůstane hlavně ten špatný konec.</p>
+
+            <div class="edu-call edu-call-violet">
+              <span class="edu-call-icon">🎭</span>
+              <p>I když byla část hovoru napjatá, pokud skončí dobře, zákazník si celkově odnese lepší pocit, než by odpovídalo celému průběhu. Proto věnuj konci hovoru <strong>stejnou pozornost jako začátku</strong>.</p>
+            </div>
+
+            <h3>Shrň, co bylo domluveno</h3>
+            <p>Na konci hovoru vždy vlastními slovy zopakuj, na čem jste se domluvili. Zákazník si to lépe zapamatuje — a zároveň to zní jako výsledek toho, co on sám chtěl, ne jako to, co jsi mu ty prodal.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Technicky</div><p>"Tak jsem vám aktivoval tarif Plus s dvaceti gigabajty."</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Výsledek pro zákazníka</div><p>"Takže od zítřka budete mít dvojnásobek dat a nebudete se muset bát, že vám dojdou, když budete na chalupě."</p></div>
+            </div>
+
+            <h3>Řekni jasně, co se bude dít dál</h3>
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">📋</span>
+              <p>Nejistota zákazníka štve možná víc než samotný problém. Vždy jasně řekni: co přesně se teď stane · do kdy se to stane · co má zákazník dělat, pokud se nic nestane.<br><em>"Změna se vám projeví do zítřejšího poledne. Pokud by se do zítřka večer nic nezměnilo, zavolejte prosím znovu na naši linku a řekněte, že to navazuje na dnešní hovor."</em></p>
+            </div>
+
+            <h3>Poslední věta rozhoduje</h3>
+            <p>Protože si lidé nejvíc pamatují konec, poslední věta hovoru má obrovskou váhu. Nekonči hovor uspěchaně nebo mechanicky.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Mechanicky</div><p>"Tak nashledanou." <em>(odříkáno rychle, bez zájmu)</em></p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Se zájmem</div><p>"Děkuji vám za čas a za trpělivost. Kdyby cokoliv, jsme tu pro vás. Přeji hezký zbytek dne."</p></div>
+            </div>
+            <div class="edu-call edu-call-green">
+              <span class="edu-call-icon">✨</span>
+              <p>Tato poslední věta nestojí nic navíc, žádný čas, žádné úsilí — ale <strong>rozhoduje o tom, jaký dojem si zákazník z celého hovoru odnese</strong>.</p>
+            </div>
+
+            <h3>Když hovor nedopadl podle představ</h3>
+            <p>I když jsi zákazníkovi nemohl vyhovět úplně ve všem, pořád platí, že konec hovoru rozhoduje. Zákazník může odejít s pocitem, že se s ním jednalo slušně.</p>
+            <div class="edu-quote">"Chápu, že to není přesně to, co jste čekal, a je mi líto, že jsem vám dnes nemohl vyhovět víc. Uděláme ale vše pro to, aby se to příště povedlo lépe. Děkuji vám za trpělivost."</div>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Konec hovoru je stejně důležitý jako začátek — lidé si ho nejvíc pamatují.</li>
+              <li>Shrň domluvené věci vlastními slovy, jako výsledek pro zákazníka.</li>
+              <li>Vždy řekni jasně, co se stane dál a do kdy.</li>
+              <li>Poslední větu hovoru nekonči mechanicky ani uspěchaně.</li>
+            </ul></div>
+          </div>
+
+          <!-- K7 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC7">
+            <p class="edu-lead">Kdokoliv umí být milý, když je vše v pořádku. <strong>Skutečně se pozná dobrý konzultant až ve chvíli, kdy je něco špatně</strong> a zákazník je naštvaný. Právě v těchto chvílích se rozhoduje, jestli si zákazník o firmě bude myslet něco dobrého, nebo od ní odejde.</p>
+
+            <h3>Neomlouvej se obecnými frázemi</h3>
+            <p>Věta "omlouváme se za způsobené potíže" zní zdvořile, ale zákazníkovi vlastně nic nedává. Nezajímá ho omluva — zajímá ho, co s tím uděláš.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Prázdná omluva</div><p>"Omlouváme se za způsobené potíže."</p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Konkrétní krok</div><p>"Podívám se hned teď, co se stalo, a řeknu vám přesně, jak to napravíme."</p></div>
+            </div>
+
+            <h3>Přepojení na jiné oddělení</h3>
+            <p>Jedno z nejvíc frustrujících věcí pro zákazníka je, když je přepojen a musí celý svůj problém vysvětlovat znovu od začátku. Pokud to jde, vždy vysvětli proč ho přepojuješ a co se bude dít.</p>
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">📞</span>
+              <p><em>"Tohle konkrétně řeší jiné oddělení, které má na to speciální nástroje. Přepojím vás na ně a v krátkosti jim řeknu, o co jde, abyste to nemusel celé vysvětlovat znovu."</em><br><br>Tato jedna věta — <strong>že jim v krátkosti řekneš, o co jde</strong> — dělá obrovský rozdíl v tom, jak zákazník celou situaci vnímá.</p>
+            </div>
+
+            <h3>Nikdy nedávej falešné sliby</h3>
+            <p>Pokud si nejsi jistý, že se něco stane do určitého data, neříkej to zákazníkovi jenom proto, aby byl v tu chvíli spokojený. Pokud se slib nesplní, zákazník bude ještě mnohem víc naštvaný, než kdyby věděl reálný stav hned.</p>
+            <div class="edu-ex-grid">
+              <div class="edu-ex edu-ex-bad"><div class="edu-ex-lbl">✗ Falešný slib</div><p>"Určitě to bude opraveno zítra." <em>(i když si tím nejsi jistý)</em></p></div>
+              <div class="edu-ex edu-ex-ok"><div class="edu-ex-lbl">✓ Upřímně</div><p>"Standardně to trvá dva až tři dny. Udělám vše pro to, aby to bylo co nejdřív, ale nechci vám slibovat něco, co nemusí vyjít."</p></div>
+            </div>
+            <div class="edu-call edu-call-violet">
+              <span class="edu-call-icon">🤝</span>
+              <p>Tato upřímnost <strong>paradoxně zvyšuje důvěru</strong> — i když zpráva sama o sobě není to, co chce zákazník slyšet.</p>
+            </div>
+
+            <h3>Opakovaná reklamace</h3>
+            <p>Pokud zákazník volá podruhé nebo potřetí kvůli stejné věci, je pochopitelné, že je naštvaný víc. V tomto případě je důležité: neopakovat stejná vysvětlení · přiznat, že situace trvá déle, než měla · nabídnout něco navíc jako gesto.</p>
+            <div class="edu-quote">"Vidím, že se tímto zabýváte už potřetí, a chápu, že vás to štve. Podívám se na to hned osobně a dám vám vědět do konce dnešního dne, jak to dopadlo."</div>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Neomlouvej se obecnými frázemi — řekni konkrétní krok, co uděláš.</li>
+              <li>Při přepojení vysvětli proč a předej informace, ať zákazník nemusí opakovat.</li>
+              <li>Nikdy nedávej falešné sliby jen kvůli klidu v tu chvíli.</li>
+              <li>U opakovaných reklamací uznej, že situace trvá déle, než měla, a nabídni konkrétní řešení.</li>
+            </ul></div>
+          </div>
+
+          <!-- K8 ─────────────────────────────────────────────────────── -->
+          <div class="edu-chap" id="eduC8">
+            <p class="edu-lead">Práce na telefonu, kde celý den mluvíš s lidmi a část z nich je naštvaná nebo nepříjemná, je psychicky náročná. Pokud se o sebe nebudeš starat, brzy to pozná i zákazník — <strong>unavený a vyčerpaný hlas totiž zní úplně jinak než hlas odpočatého člověka</strong>.</p>
+
+            <h3>Neber si nadávky a naštvání osobně</h3>
+            <p>Pokud na tebe zákazník křičí nebo je hrubý, pamatuj si, že <strong>to není o tobě jako o člověku</strong>. Zákazník je naštvaný na situaci, na firmu, na to, že mu něco nefunguje — a ty jsi jen první člověk, na kterého to může vylít. Neznamená to, že si to musíš nechat líbit v jakékoliv formě, ale znamená to, že si to nemusíš brát jako osobní útok.</p>
+
+            <div class="edu-call edu-call-blue">
+              <span class="edu-call-icon">🧠</span>
+              <p>Mezi hovory si dej alespoň krátkou pauzu na nádech. Zákazník na druhém konci linky vždy pozná, jestli mluvíš s ním jako s <strong>prvním člověkem dneška, nebo jako s třicátým</strong>.</p>
+            </div>
+
+            <h3>Všímej si i toho, co se ti povede</h3>
+            <p>Je snadné si po náročném dni pamatovat hlavně ty hovory, které nedopadly dobře, a zapomenout na všechny, které proběhly v pohodě nebo kde jsi zákazníkovi opravdu pomohl. Zkus si na konci směny vzpomenout aspoň na <strong>jeden hovor, který se ti povedl</strong>. Dlouhodobě to pomáhá k tomu, aby tě práce tolik nevyčerpávala.</p>
+
+            <h3>Co dělat po opravdu těžkém hovoru</h3>
+            <p>Pokud tě nějaký hovor hodně rozhodil, je v pořádku dát si chvilku, než budeš pokračovat dál — pokud to tvůj režim práce umožňuje. Několik hlubokých nádechů, krátká procházka po místnosti, sklenice vody — tyto drobnosti pomáhají tělu i mysli se zklidnit.</p>
+
+            <div class="edu-call edu-call-green">
+              <span class="edu-call-icon">💪</span>
+              <p><strong>Cvičení:</strong> Při příštích pěti hovorech se soustřeď jen na jednu věc — kolikrát jsi zákazníkovi skočil do řeči. Nemusíš nic měnit, jen si to všímej. Samotné toto vědomí tě přiměje víc poslouchat.</p>
+            </div>
+
+            <div class="edu-sum"><h3>Shrnutí kapitoly</h3><ul>
+              <li>Mezi hovory si dej alespoň krátkou pauzu na nádech.</li>
+              <li>Naštvání zákazníka není osobní útok na tebe jako člověka.</li>
+              <li>Všímej si i toho, co se ti povede — ne jen chyb.</li>
+              <li>Po náročném hovoru si dej krátkou chvíli na zklidnění, pokud je to možné.</li>
+            </ul></div>
+          </div>
+
+        </div><!-- /edu-body -->
+
+        <div class="edu-foot">
+          <button class="edu-btn" id="eduPrev" onclick="goEduChap(eduChapCur-1)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>
+            Předchozí
+          </button>
+          <button class="edu-btn prim" id="eduNext" onclick="goEduChap(eduChapCur+1)">
+            Další
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9,18 15,12 9,6"/></svg>
+          </button>
+        </div>
+      </div><!-- /edu-main -->
+
+    </div>
+  </div>
+  <!-- ════════════════════  /EDUKAČNÍ OVERLAY  ════════════════════════════ -->
+</body>
+</html>
